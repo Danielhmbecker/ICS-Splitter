@@ -14,7 +14,7 @@ calendar = Calendar(response.text)
 output_dir = 'output/Splits'
 os.makedirs(output_dir, exist_ok=True)
 
-# Create a TXT file with all event data
+# Create a TXT file with all event data (optional, for reference)
 txt_file_path = os.path.join(output_dir, 'events_data.txt')
 with open(txt_file_path, 'w') as txt_file:
     for event in calendar.events:
@@ -26,9 +26,7 @@ with open(txt_file_path, 'w') as txt_file:
         event_data += f"URL: {event.url if event.url else 'N/A'}\n\n"
         txt_file.write(event_data)
 
-print(f"Event data saved to {txt_file_path}")
-
-# Recreate ICS files from TXT data
+# Recreate ICS files from the extracted TXT data
 with open(txt_file_path, 'r') as txt_file:
     event_lines = txt_file.read().split('\n\n')  # Split events by double newline
 
