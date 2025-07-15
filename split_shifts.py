@@ -11,8 +11,10 @@ response = requests.get(url)
 # Parse the ICS feed data
 calendar = Calendar(response.text)
 
-# Create the output directories
+# Define the output directory path
 output_dir = 'output/Splits'
+
+# Ensure the output directory exists (create it if not)
 os.makedirs(output_dir, exist_ok=True)
 
 # Initialize a dictionary to store events by location
