@@ -1,3 +1,4 @@
+import os
 import requests
 import ics
 from ics import Calendar
@@ -18,9 +19,14 @@ for event in calendar.events:
     building = event.location  # Adjust this line based on where the building info is in the ICS file
     building_shifts[building].append(event)
 
+# Create the output/Splits directory if it doesn't exist
+output_dir = 'output/Splits'
+os.makedirs(output_dir, exist_ok=True)
+
 # Save the parsed data into separate ICS files based on building
 for building, events in building_shifts.items():
     new_calendar = Calendar(events)
-    with open(f'{building}_shifts.ics', 'w') as f:
+    file_path = os.path.join(output_dir, f'{building}_shifts.ics')
+    with open(file_path, 'w') as f:
         f.writelines(new_calendar)
-    print(f'Generated ICS for {building}')
+    print(f'Generated ICS for {building} at {file_path}')
