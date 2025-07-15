@@ -25,8 +25,14 @@ for event in calendar.events:
     if event.location and "BrewDog" in event.location:
         location_shifts[event.location].append(event)
 
+# Debugging: Check how many locations and events are found
+print(f"Total BrewDog locations found: {len(location_shifts)}")
+
 # Now, create separate ICS files for each BrewDog location
 for location, events in location_shifts.items():
+    # Debugging: Check how many events are in each location
+    print(f"Processing {len(events)} events for {location}")
+    
     # Create a new calendar for each location's events
     new_calendar = Calendar(events)
     
@@ -38,4 +44,11 @@ for location, events in location_shifts.items():
     with open(output_ics_path, 'w') as ics_file:
         ics_file.writelines(new_calendar)
     
+    # Debugging: Confirm that the file is being created
     print(f"Generated ICS for {location} at {output_ics_path}")
+
+# Check if any ICS files exist in the output folder after script runs
+print(f"Checking generated ICS files in {output_dir}")
+for root, dirs, files in os.walk(output_dir):
+    for file in files:
+        print(f"Found: {file}")
