@@ -28,6 +28,13 @@ jobs:
     - name: Run script to extract events and create ICS
       run: python split_shifts.py
 
+    - name: Check if ICS files exist
+      run: |
+        if [ -z "$(ls output/Splits/*.ics 2>/dev/null)" ]; then
+          echo "No ICS files generated, skipping commit"
+          exit 0
+        fi
+
     - name: Commit ICS files to repo
       run: |
         git config --global user.name "GitHub Actions"
