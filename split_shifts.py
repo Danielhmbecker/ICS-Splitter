@@ -2,6 +2,7 @@ import os
 import requests
 import ics
 from ics import Calendar
+from collections import defaultdict
 
 # Fetch the ICS feed from the provided URL
 url = 'https://feeds.rotaready.com/calendar/brewdog?token=oGlI1BR1222XwBdmGXmCl8GTzgCpDofSSN0rSID5uMhnwfZTsH9gTj8dUzgLmOkkwoovKLYwWdEKxxTYafn35ys2q1GedIn0rAtZtbW7DFjW5AOTsXByKJPOzb5NWgIZ'
@@ -14,38 +15,25 @@ calendar = Calendar(response.text)
 output_dir = 'output/Splits'
 os.makedirs(output_dir, exist_ok=True)
 
-# Create a TXT file with all event data (optional, for reference)
-txt_file_path = os.path.join(output_dir, 'events_data.txt')
-with open(txt_file_path, 'w') as txt_file:
-    for event in calendar.events:
-        event_data = f"Event Title: {event.name}\n"
-        event_data += f"Start: {event.begin}\n"
-        event_data += f"End: {event.end}\n"
-        event_data += f"Location: {event.location}\n"
-        event_data += f"Description: {event.description}\n"
-        event_data += f"URL: {event.url if event.url else 'N/A'}\n\n"
-        txt_file.write(event_data)
+# Initialize a dictionary to store events by location
+location_shifts = defaultdict(list)
 
-# Recreate ICS files from the extracted TXT data
-with open(txt_file_path, 'r') as txt_file:
-    event_lines = txt_file.read().split('\n\n')  # Split events by double newline
+# Loop through each event and sort it by location (filtering for BrewDog locations)
+for event in calendar.events:
+    if event.location and "BrewDog" in event.location:
+        location_shifts[event.location].append(event)
 
-for idx, event in enumerate(event_lines):
-    event_info = event.split('\n')
-    event_name = event_info[0].split(": ")[1]
-    event_start = event_info[1].split(": ")[1]
-    event_end = event_info[2].split(": ")[1]
-    event_location = event_info[3].split(": ")[1]
-    event_description = event_info[4].split(": ")[1]
-    event_url = event_info[5].split(": ")[1]
-
-    new_event = ics.Event(name=event_name, begin=event_start, end=event_end, location=event_location, description=event_description, url=event_url)
-
-    # Create a new ICS calendar and add this event
-    new_calendar = ics.Calendar(events=[new_event])
-    output_ics_path = os.path.join(output_dir, f"event_{idx+1}.ics")
-
+# Now, create separate ICS files for each BrewDog location
+for location, events in location_shifts.items():
+    # Create a new calendar for each location's events
+    new_calendar = Calendar(events)
+    
+    # Define the output path based on the location
+    location_cleaned = location.replace(" ", "_").replace("/", "_")  # Clean location name for filenames
+    output_ics_path = os.path.join(output_dir, f"{location_cleaned}_shifts.ics")
+    
     # Write the new ICS file
     with open(output_ics_path, 'w') as ics_file:
         ics_file.writelines(new_calendar)
-    print(f"Generated ICS for event: {event_name} at {output_ics_path}")
+    
+    print(f"Generated ICS for {location} at {output_ics_path}")
