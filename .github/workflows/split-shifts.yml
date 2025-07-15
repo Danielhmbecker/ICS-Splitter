@@ -2,10 +2,10 @@ name: Split Rota Shifts
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # This runs every day at midnight (adjust as needed)
+    - cron: '0 0 * * *'  # Runs every day at midnight (adjust as needed)
   push:
     paths:
-      - '**/*.py'  # Run when Python files change
+      - '**/*.py'  # Runs on Python file changes
 
 jobs:
   split-shifts:
@@ -25,11 +25,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run script to split shifts
+    - name: Run script to extract events and create ICS
       run: python split_shifts.py
 
-    - name: Upload ICS files as artifacts
-      uses: actions/upload-artifact@v3  # Updated to version v3
+    - name: Upload TXT and ICS files as artifacts
+      uses: actions/upload-artifact@v3
       with:
-        name: ics-files
-        path: output/Splits/*.ics  # Upload files from the output/Splits folder
+        name: event-files
+        path: output/Splits/*
