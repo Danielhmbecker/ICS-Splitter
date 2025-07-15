@@ -2,7 +2,7 @@ name: Split Rota Shifts
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs every day at midnight (adjust as needed)
+    - cron: '0 0 * * *'  # This runs every day at midnight (adjust as needed)
   push:
     paths:
       - '**/*.py'  # Runs on Python file changes
@@ -28,8 +28,10 @@ jobs:
     - name: Run script to extract events and create ICS
       run: python split_shifts.py
 
-    - name: Upload TXT and ICS files as artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: event-files
-        path: output/Splits/*
+    - name: Commit ICS files to repo
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add output/Splits/*.ics
+        git commit -m "Update ICS files" || echo "No changes to commit"
+        git push origin main
